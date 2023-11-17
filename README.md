@@ -1,8 +1,6 @@
-<p align="center"><a href=""><img src="https://github.com/harisabdullahh/Status/blob/master/app/src/main/res/drawable/status_logo.png" width="150"></a></p> 
+<p align="center"><a href=""><img src="app/src/main/res/drawable/status_logo.png" width="150"></a></p> 
 <h2 align="center"><b>Status</b></h2>
-<h4 align="center">An app to send api requests</h4>
-
-<b>WARNING: THIS APP IS IN BETA, SO YOU MAY ENCOUNTER BUGS. IF YOU DO, OPEN AN ISSUE IN OUR GITHUB REPOSITORY BY FILLING OUT THE ISSUE TEMPLATE.</b>
+<h4 align="center">An app to send API Requests</h4>
 
 ## Screenshots
 
