@@ -4,7 +4,6 @@
 
 ## Screenshots
 
-[<img src="https://github.com/harisabdullahh/Status/blob/master/app/src/main/res/assets/Screenshot_20231116-170030.jpg" width=200>](https://github.com/harisabdullahh/Status/blob/master/app/src/main/res/assets/Screenshot_20231116-170030.jpg)
 [<img src="https://github.com/harisabdullahh/Status/blob/master/app/src/main/res/assets/Screenshot_20231116-170024.jpg" width=200>](https://github.com/harisabdullahh/Status/blob/master/app/src/main/res/assets/Screenshot_20231116-170024.jpg)
 </br></br>
 
