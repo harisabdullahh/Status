@@ -13,7 +13,7 @@ import android.widget.TextView;
 public class Activity_Settings extends AppCompatActivity {
 
     private ImageView _back_button;
-    private TextView _device_id_txt, _emp_id_txt;
+    private TextView _device_id_txt, _emp_id_txt, _network_txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +27,12 @@ public class Activity_Settings extends AppCompatActivity {
     protected void onStart() {
         _device_id_txt.setText(device_id);
         _emp_id_txt.setText(emp_id);
+
+        if(Request.use_wan_text.equals("false"))
+            _network_txt.setText("LAN");
+        else
+            _network_txt.setText("WAN");
+
         super.onStart();
     }
 
@@ -34,6 +40,7 @@ public class Activity_Settings extends AppCompatActivity {
         _back_button = findViewById(R.id.back_button);
         _emp_id_txt = findViewById(R.id.emp_id_txt);
         _device_id_txt = findViewById(R.id.device_id_txt);
+        _network_txt = findViewById(R.id.network_txt);
 
         _back_button.setOnClickListener(v -> {
             finish();
