@@ -55,7 +55,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
-
     private String SHARED_PREFS = "shared_prefs";
     private static final int pic_id = 123;
     String convertedImage;
@@ -90,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
-//        hold_button = true;
-//        get_button.setBackgroundColor(ContextCompat.getColor(this, androidx.cardview.R.color.cardview_dark_background));
-//        post_button.setBackgroundColor(ContextCompat.getColor(this, androidx.cardview.R.color.cardview_dark_background));
-//        makeGetRequest(get_status_wan);
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
@@ -112,22 +106,17 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Match the request 'pic id with requestCode
         if (requestCode == pic_id) {
-            // BitMap is data structure of image file which store the image in memory
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             photo.compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream);
             byte[] byteArray = byteArrayOutputStream.toByteArray();
             convertedImage = new String(Base64.encodeToString(byteArray, Base64.DEFAULT));
-//            Log.d("Tracking: ", String.valueOf(convertedImage));
             if(debug)
                 Log.d("Tracking", "Image captured and saved.");
             post_button.setVisibility(View.GONE);
             _progressBar1.setVisibility(View.VISIBLE);
             sendPostRequest();
-            // Set the image in imageview for display
-//            click_image_id.setImageBitmap(photo);
         }
     }
 
@@ -167,20 +156,11 @@ public class MainActivity extends AppCompatActivity {
                     _progressBar2.setVisibility(View.VISIBLE);
                     get_pressed = true;
                     ping();
-//                if(use_wan){
-//                    makeGetRequest(get_status_wan);
-//                } else {
-//                    makeGetRequest(get_status_lan);
-//                }
                 }
             }
         });
 
         post_button.setOnClickListener(v -> {
-
-//            Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//            // Start the activity with camera_intent, and request pic id
-//            startActivityForResult(camera_intent, pic_id);
 
             if(!emp_id.equals("") && !device_id.equals("")) {
                 if (!hold_button) {
@@ -197,13 +177,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         _settings_button.setOnClickListener(v -> {
             Intent i = new Intent(this, Activity_Settings.class);
             startActivity(i);
         });
-
-
     }
 
     private OkHttpClient client = new OkHttpClient();
@@ -237,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     e.printStackTrace();
-                    // Handle the failure
                 }
             });
         }
@@ -256,7 +232,6 @@ public class MainActivity extends AppCompatActivity {
                             ResponseBody responseBody = response.body();
                             if (responseBody != null) {
                                 String json = responseBody.string();
-                                // Handle the JSON response
                                 handleJSONResponse(json);
                                 if(debug)
                                     Log.d("Tracking: ", "GET Response: " + response);
@@ -270,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     e.printStackTrace();
-                    // Handle the failure
                 }
             });
         }
@@ -279,21 +253,14 @@ public class MainActivity extends AppCompatActivity {
     public static String extractFullName(String jsonResponse) {
         try {
             JSONObject responseObj = new JSONObject(jsonResponse);
-
-            // Check if the "result" array exists and has at least one element
             if (responseObj.has("result") && !responseObj.isNull("result")) {
                 if (responseObj.get("result") instanceof JSONArray) {
                     JSONArray resultArray = responseObj.getJSONArray("result");
 
-                    // Check if the array has at least one employee
                     if (resultArray.length() > 0) {
                         JSONObject employeeObj = resultArray.getJSONObject(0);
-
-                        // Extract first and last names
                         String firstName = employeeObj.getString("firstName");
                         String lastName = employeeObj.getString("lastName");
-
-                        // Concatenate first and last names
                         return firstName + " " + lastName;
                     }
                 }
@@ -303,10 +270,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        return null; // Return null if any error occurs
+        return null;
     }
 
-        // Method to handle the JSON response
         private void handleJSONResponse(String json) {
             firstName = extractFullName(json);
             SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
@@ -329,7 +295,6 @@ public class MainActivity extends AppCompatActivity {
                     status_date = lastAttendance.substring(0, indexOfT);
                     status_time = lastAttendance.substring(indexOfT+1, indexOfT+6);
 
-                    // Update UI or perform actions with the lastAttendance data
                     runOnUiThread(() -> {
                         _progressBar2.setVisibility(View.GONE);
                         get_button.setVisibility(View.VISIBLE);
@@ -429,116 +394,6 @@ public class MainActivity extends AppCompatActivity {
         new PostRequestTask(deviceId, convertedImage, callback).execute();
     }
 
-
-
-
-
-
-//    private void sendPostRequest() {
-//
-//        String json = "";
-//        json = "{\n\"deviceId\": \"" + deviimageDatace_id + "\",\n\"image_data\": \"" + part1 + part2 + part3 + part4 + part5 + part6 + part7 + part8 + part9 + part10 + part11 + part12 + part13 + part14 + part15 + part16 + part17 + part18 + part19 + part20 + part21 + part22 + part23 + part24 + "\"\n}";
-//        Log.d("Tracking: ", json);
-//
-//        post_pressed = false;
-//
-//        // Create a request body with the JSON data
-//        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-//
-//        // Create the POST request
-//        Request request = null;
-//        if(use_wan){
-//            request = new Request.Builder()
-//                    .url(post_mark_attendance_wan + emp_id)
-//                    .post(requestBody)
-//                    .build();
-//        } else if(!use_wan) {
-//            request = new Request.Builder()
-//                    .url(post_mark_attendance_lan + emp_id)
-//                    .post(requestBody)
-//                    .build();
-//        }
-//
-//        Log.d("Tracking: ", String.valueOf(requestBody));
-//
-//        // Execute the request
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onResponse(Call call, Response response) {
-//                if (response.isSuccessful()) {
-//                    try {
-////                        _post_text.setText("Response Sent");
-//                        ResponseBody responseBody = response.body();
-//                        if (responseBody != null) {
-//                            String postResponse = responseBody.string();
-//                            Log.d("Tracking: ", postResponse);
-//                            JSONObject jsonResponse = new JSONObject(postResponse);
-//                            boolean isSuccess = jsonResponse.optBoolean("isSuccess", false);
-//                            runOnUiThread(() -> {
-//                                if(isSuccess) {
-//                                    setPrompt("Attendance Marked");
-//                                    if(use_wan){
-//                                        makeGetRequest(get_status_wan);
-//                                    } else if(!use_wan) {
-//                                        makeGetRequest(get_status_lan);
-//                                    }
-//                                }
-//                                else {
-//                                    setPrompt("Attendance Not Marked");
-//                                }
-//                                post_button.setVisibility(View.VISIBLE);
-//                                _progressBar1.setVisibility(View.GONE);
-//                                handler = new Handler();
-//                                Log.d("Handler: ", "handler created");
-//                                _updateRunnable = new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        Log.d("Handler: ", "run start");
-//                                        setPrompt("");
-//                                        handler.postDelayed(this, 3000);
-//                                        handler.removeCallbacks(_updateRunnable);
-//                                        Log.d("Handler: ", "handler ended");
-//                                    }
-//                                };
-//                                Log.d("Handler: ", "outside runnable");
-//                                handler.postDelayed(_updateRunnable, 3000);
-//                                makeGetRequest(get_status_wan);
-//                            });
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                e.printStackTrace();
-//                runOnUiThread(() -> {
-//                    setPrompt("Error");
-//                    post_button.setVisibility(View.VISIBLE);
-//                    _progressBar1.setVisibility(View.GONE);
-//
-//                    handler = new Handler();
-//                    Log.d("Handler: ", "handler created");
-//                    _updateRunnable = new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Log.d("Handler: ", "run start");
-//                            setPrompt("");
-//                            handler.postDelayed(this, 3000);
-//                            handler.removeCallbacks(_updateRunnable);
-//                            Log.d("Handler: ", "handler ended");
-//                        }
-//                    };
-//                    Log.d("Handler: ", "outside runnable");
-//                    handler.postDelayed(_updateRunnable, 3000);
-//
-//                });
-//            }
-//        });
-//    }
-
     private void updateEarlyDate(String newDate, String newTime) throws ParseException {
 
         SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
@@ -590,13 +445,6 @@ public class MainActivity extends AppCompatActivity {
                         prompt,
                         Snackbar.LENGTH_LONG);
         snackbar.show();
-//            if(prompt.equals("")){
-//                _post_text.setText("");
-//                _card_prompt.setVisibility(View.GONE);
-//            } else {
-//                _post_text.setText(prompt);
-//                _card_prompt.setVisibility(View.VISIBLE);
-//            }
     }
 
     private static String convertDateFormat(String inputDate, String outputFormat) {
@@ -637,7 +485,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean isReachable) {
             if (isReachable) {
-//                Toast.makeText(MainActivity.this, "Server is reachable", Toast.LENGTH_SHORT).show();
                 use_wan = false;
                 get_success = false;
                 com.blood.status.Request.use_wan_text = String.valueOf(false);
@@ -657,7 +504,6 @@ public class MainActivity extends AppCompatActivity {
                     sendPostRequest();
                 }
             } else {
-//                Toast.makeText(MainActivity.this, "Server is not reachable", Toast.LENGTH_SHORT).show();
                 use_wan = true;
                 com.blood.status.Request.use_wan_text = String.valueOf(true);
                 hold_button = false;
@@ -675,7 +521,6 @@ public class MainActivity extends AppCompatActivity {
                     post_pressed = false;
                     sendPostRequest();
                 }
-
             }
         }
     }

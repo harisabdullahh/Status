@@ -86,14 +86,9 @@ public class Activity_Settings extends AppCompatActivity {
                             "Image Saved",
                             Snackbar.LENGTH_LONG);
             snackbar.show();
-//            Log.d("Tracking: ", String.valueOf(convertedImage));
+
             if(debug)
                 Log.d("Tracking", "Image captured and saved.");
-//            post_button.setVisibility(View.GONE);
-//            _progressBar1.setVisibility(View.VISIBLE);
-//            sendPostRequest();
-            // Set the image in imageview for display
-//            click_image_id.setImageBitmap(photo);
         }
     }
 
@@ -108,7 +103,6 @@ public class Activity_Settings extends AppCompatActivity {
 
         _image_button.setOnClickListener(v -> {
             Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            // Start the activity with camera_intent, and request pic id
             startActivityForResult(camera_intent, pic_id);
         });
 
@@ -145,8 +139,6 @@ public class Activity_Settings extends AppCompatActivity {
 
         _back_button.setOnClickListener(v -> {
             finish();
-//            Intent i = new Intent(this, MainActivity.class);
-//            startActivity(i);
         });
 
     }

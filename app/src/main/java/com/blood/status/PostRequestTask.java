@@ -16,7 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class PostRequestTask extends AsyncTask<Void, Void, String> {
-
     private String deviceId;
     private String base64ImageData; // Base64-encoded image data
     private PostRequestCallback callback;
