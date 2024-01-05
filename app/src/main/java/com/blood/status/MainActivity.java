@@ -1,41 +1,6 @@
 package com.blood.status;
 
-import static com.blood.status.Request.device_id;
-import static com.blood.status.Request.emp_id;
-import static com.blood.status.Request.get_status_lan;
-import static com.blood.status.Request.get_status_wan;
-import static com.blood.status.Request.outputDateFormat;
-import static com.blood.status.Request.outputTimeFormat;
-import static com.blood.status.Request.part1;
-import static com.blood.status.Request.part2;
-import static com.blood.status.Request.part24;
-import static com.blood.status.Request.part3;
-import static com.blood.status.Request.part4;
-import static com.blood.status.Request.part5;
-import static com.blood.status.Request.part6;
-import static com.blood.status.Request.part7;
-import static com.blood.status.Request.part8;
-import static com.blood.status.Request.part9;
-import static com.blood.status.Request.part10;
-import static com.blood.status.Request.part11;
-import static com.blood.status.Request.part12;
-import static com.blood.status.Request.part13;
-import static com.blood.status.Request.part14;
-import static com.blood.status.Request.part15;
-import static com.blood.status.Request.part16;
-import static com.blood.status.Request.part17;
-import static com.blood.status.Request.part18;
-import static com.blood.status.Request.part19;
-import static com.blood.status.Request.part19;
-import static com.blood.status.Request.part20;
-import static com.blood.status.Request.part21;
-import static com.blood.status.Request.part22;
-import static com.blood.status.Request.part23;
-import static com.blood.status.Request.post_mark_attendance_lan;
-import static com.blood.status.Request.post_mark_attendance_wan;
-import static com.blood.status.Request.status_date;
-import static com.blood.status.Request.status_time;
-import static com.blood.status.Request.status_result;
+import static com.blood.status.Request.*;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,19 +10,27 @@ import androidx.core.content.ContextCompat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.text.ParseException;
@@ -78,11 +51,16 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     private String SHARED_PREFS = "shared_prefs";
+    private static final int pic_id = 123;
+    String convertedImage;
+    private String firstName = "";
+    private String firstMessage;
     private boolean post_success = false;
     private boolean get_success = false;
     public boolean use_wan = false;
@@ -91,8 +69,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean hold_button = false;
     private boolean start_func = false;
     MaterialButton get_button, post_button;
+    LinearLayout LinearMain;
     private MaterialButton _lan_button, _wan_button;
-    private TextView _date_text, _time_text, _post_text, _network_text, _time_in_text;
+    private TextView _date_text, _time_text, _post_text, _network_text, _time_in_text, _name_text;
     private CardView _card_prompt;
     private ImageView _settings_button;
     private ProgressBar _progressBar1;
@@ -121,8 +100,35 @@ public class MainActivity extends AppCompatActivity {
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
             _time_text.setText(formattedTime);
             _date_text.setText(formattedDate);
+            _name_text.setText(firstName);
         }
+
+        SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        device_id = sh.getString("DEVICEID", "");
+        emp_id = sh.getString("EMPID", "");
+
         super.onStart();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Match the request 'pic id with requestCode
+        if (requestCode == pic_id) {
+            // BitMap is data structure of image file which store the image in memory
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            photo.compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            convertedImage = new String(Base64.encodeToString(byteArray, Base64.DEFAULT));
+//            Log.d("Tracking: ", String.valueOf(convertedImage));
+            if(debug)
+                Log.d("Tracking", "Image captured and saved.");
+            post_button.setVisibility(View.GONE);
+            _progressBar1.setVisibility(View.VISIBLE);
+            sendPostRequest();
+            // Set the image in imageview for display
+//            click_image_id.setImageBitmap(photo);
+        }
     }
 
     private void ping() {
@@ -132,11 +138,13 @@ public class MainActivity extends AppCompatActivity {
     protected void initView() {
 
         //Initializtion
+        LinearMain = findViewById(R.id.LinearMain);
         get_button = findViewById(R.id.get_button);
         post_button = findViewById(R.id.post_button);
         _date_text = findViewById(R.id.date_text);
         _time_text = findViewById(R.id.time_text);
         _post_text = findViewById(R.id.post_text);
+        _name_text = findViewById(R.id.name_text);
         _settings_button = findViewById(R.id.settings_button);
         _progressBar1 = findViewById(R.id.progressBar1);
         _progressBar2 = findViewById(R.id.progressBar2);
@@ -153,27 +161,40 @@ public class MainActivity extends AppCompatActivity {
 
         //Listeners
         get_button.setOnClickListener(v -> {
-            if(!hold_button){
-                get_button.setVisibility(View.GONE);
-                _progressBar2.setVisibility(View.VISIBLE);
-                get_pressed = true;
-                ping();
+            if(!emp_id.equals("") && !device_id.equals("")){
+                if(!hold_button){
+                    get_button.setVisibility(View.GONE);
+                    _progressBar2.setVisibility(View.VISIBLE);
+                    get_pressed = true;
+                    ping();
 //                if(use_wan){
 //                    makeGetRequest(get_status_wan);
 //                } else {
 //                    makeGetRequest(get_status_lan);
 //                }
+                }
             }
         });
 
         post_button.setOnClickListener(v -> {
-            if(!hold_button){
-                post_button.setVisibility(View.GONE);
-                _progressBar1.setVisibility(View.VISIBLE);
-                post_pressed = true;
-                ping();
-            }
 
+//            Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//            // Start the activity with camera_intent, and request pic id
+//            startActivityForResult(camera_intent, pic_id);
+
+            if(!emp_id.equals("") && !device_id.equals("")) {
+                if (!hold_button) {
+                    SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+                    String temp1 = sh.getString("IMAGE", "");
+                    if(!temp1.equals("")){
+                        convertedImage = temp1;
+                    }
+                    post_button.setVisibility(View.GONE);
+                    _progressBar1.setVisibility(View.VISIBLE);
+                    post_pressed = true;
+                    ping();
+                }
+            }
         });
 
 
@@ -204,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
                                 String json = responseBody.string();
                                 // Handle the JSON response
                                 handleJSONResponse(json);
+                                if(debug)
+                                    Log.d("Tracking: ", "GET Response: " + response);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -219,8 +242,77 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        public void getData(String url) {
+            okhttp3.Request request = new okhttp3.Request.Builder()
+                    .url(url)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) {
+                    if (response.isSuccessful()) {
+                        try {
+                            get_success = true;
+                            ResponseBody responseBody = response.body();
+                            if (responseBody != null) {
+                                String json = responseBody.string();
+                                // Handle the JSON response
+                                handleJSONResponse(json);
+                                if(debug)
+                                    Log.d("Tracking: ", "GET Response: " + response);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                    // Handle the failure
+                }
+            });
+        }
+
+
+    public static String extractFullName(String jsonResponse) {
+        try {
+            JSONObject responseObj = new JSONObject(jsonResponse);
+
+            // Check if the "result" array exists and has at least one element
+            if (responseObj.has("result") && !responseObj.isNull("result")) {
+                if (responseObj.get("result") instanceof JSONArray) {
+                    JSONArray resultArray = responseObj.getJSONArray("result");
+
+                    // Check if the array has at least one employee
+                    if (resultArray.length() > 0) {
+                        JSONObject employeeObj = resultArray.getJSONObject(0);
+
+                        // Extract first and last names
+                        String firstName = employeeObj.getString("firstName");
+                        String lastName = employeeObj.getString("lastName");
+
+                        // Concatenate first and last names
+                        return firstName + " " + lastName;
+                    }
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Return null if any error occurs
+    }
+
         // Method to handle the JSON response
         private void handleJSONResponse(String json) {
+            firstName = extractFullName(json);
+            SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("firstName", firstName);
+            editor.apply();
             try {
                 JSONObject jsonObject = new JSONObject(json);
                 JSONArray resultArray = jsonObject.getJSONArray("result");
@@ -229,7 +321,8 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject firstResult = resultArray.getJSONObject(0);
 
                     String lastAttendance = firstResult.getString("lastAttendance");
-                    Log.d("Tracking: ", lastAttendance);
+                    if(debug)
+                        Log.d("Tracking: ", lastAttendance);
                     status_result = lastAttendance;
                     int indexOfT = lastAttendance.indexOf('T');
                     int lengthOfT = lastAttendance.length();
@@ -244,7 +337,12 @@ public class MainActivity extends AppCompatActivity {
                         String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
                         _time_text.setText(formattedTime);
                         _date_text.setText(formattedDate);
-                        updateEarlyDate(formattedDate, formattedTime);
+                        _name_text.setText(firstName);
+                        try {
+                            updateEarlyDate(formattedDate, formattedTime);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
                     });
                 }
             } catch (Exception e) {
@@ -252,21 +350,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-//        private void sendPostRequest() {
-//            Log.d("Tracking: ", "Length: " + part1.length() + "\n Part 1: " +part1);
-//            Log.d("Tracking: ", "Length: " + part6.length() + "\n Part 6: " +part6);
-////            Log.d("Tracking: ", "Length: " + part2.length() + "\n Part 2: " +part2);
-////            Log.d("Tracking: ", "Length: " + part3.length() + "\n Part 3: " +part3);
-////            Log.d("Tracking: ", "Length: " + part4.length() + "\n Part 4: " +part4);
-////            Log.d("Tracking: ", "Length: " + part5.length() + "\n Part 5: " +part5);
-//        }
-
-
-
     private void sendPostRequest() {
-        String deviceId = device_id;
-        String convertedImage = (part1 + part2 + part3 + part4 + part5 + part6 + part7 + part8 + part9 + part10 + part11 + part12 + part13 + part14 + part15 + part16 + part17 + part18 + part19 + part20 + part21 + part22 + part23 + part24);
-        Log.d("Tracking: ", convertedImage);
+        SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        String deviceId = sh.getString("DEVICEID", "");
+        String empId = sh.getString("EMPID", "");
+        if(debug)
+            Log.d("Tracking: ", convertedImage);
         PostRequestTask.PostRequestCallback callback = new PostRequestTask.PostRequestCallback() {
             @Override
             public void onSuccess(String result) {
@@ -275,20 +364,55 @@ public class MainActivity extends AppCompatActivity {
                 _progressBar1.setVisibility(View.GONE);
                 get_pressed = true;
                 ping();
-                setPrompt("Attendance Marked");
+
+                firstName = extractFullName(result);
+
+                try {
+                    JSONObject jsonResponse = new JSONObject(result);
+
+                    if(jsonResponse.has("statusCode" )) {
+                        int status_code = jsonResponse.getInt("statusCode");
+                        if(debug)
+                            Log.d("Tracking", "Status Code: " + status_code);
+
+                        if (status_code == 200){
+                            if (jsonResponse.has("result") && jsonResponse.getJSONArray("result").length() > 0) {
+                                // Get the first item in the "result" array
+                                JSONObject resultObject = jsonResponse.getJSONArray("result").getJSONObject(0);
+                                JSONArray messagesArray = jsonResponse.getJSONArray("messages");
+                                firstMessage = messagesArray.getString(0);
+                                setPrompt(firstMessage);
+                                // Extract the name from the resultObject
+                                firstName = resultObject.optString("firstName", "");
+
+                            }
+                        } else if(status_code == 400){
+                                // Get the first item in the "result" array
+                                JSONArray messagesArray = jsonResponse.getJSONArray("messages");
+                                firstMessage = messagesArray.getString(0);
+                                setPrompt(firstMessage);
+                        }
+                    }
+                } catch (JSONException e) {
+                    if(debug)
+                        Log.e("Tracking", "Error parsing JSON: " + e.getMessage());
+                }
 
                 Handler handler = new Handler();
                 _updateRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("Handler: ", "run start");
-                        setPrompt("");
+                        if(debug)
+                            Log.d("Handler: ", "run start");
+//                        setPrompt("");
                         handler.postDelayed(this, 3000);
                         handler.removeCallbacks(_updateRunnable);
-                        Log.d("Handler: ", "handler ended");
+                        if(debug)
+                            Log.d("Handler: ", "handler ended");
                     }
                 };
-                Log.d("Handler: ", "outside runnable");
+                if(debug)
+                    Log.d("Handler: ", "outside runnable");
                 handler.postDelayed(_updateRunnable, 3000);
 
             }
@@ -299,21 +423,6 @@ public class MainActivity extends AppCompatActivity {
                 post_button.setVisibility(View.VISIBLE);
                 _progressBar1.setVisibility(View.GONE);
                 setPrompt("Error");
-
-                Handler handler = new Handler();
-                _updateRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("Handler: ", "run start");
-                        setPrompt("");
-                        handler.postDelayed(this, 3000);
-                        handler.removeCallbacks(_updateRunnable);
-                        Log.d("Handler: ", "handler ended");
-                    }
-                };
-                Log.d("Handler: ", "outside runnable");
-                handler.postDelayed(_updateRunnable, 3000);
-
             }
         };
 
@@ -430,68 +539,64 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
-    private void updateEarlyDate(String varDate, String varTime) {
+    private void updateEarlyDate(String newDate, String newTime) throws ParseException {
 
-        SharedPreferences sh = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
-        String timetemp = sh.getString("time", "");
-        String datetemp = sh.getString("date", "");
+        SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        String savedTime = sh.getString("time", "");
+        String savedDate = sh.getString("date", "");
+        _time_in_text.setText("Time in:\n" + savedTime);
 
+        SharedPreferences.Editor editor = sh.edit();
+        editor.putString("timetemp",newTime);
+        editor.putString("datetemp",newDate);
+        editor.apply();
 
-        if(!datetemp.equals("") && !timetemp.equals("")){
-
-            DateTimeFormatter dateFormatter = null;
-            LocalDate date = null;
-            LocalDate currentDate = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
-                date = LocalDate.parse(varDate, dateFormatter);
-                currentDate = LocalDate.now();
-            }
-
-            if (currentDate.equals(date)) {
-
-
-                DateTimeFormatter timeFormatter = null;
-                LocalTime time1 = null, time2 = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
-                    time1 = LocalTime.parse(varTime, timeFormatter);
-                    time2 = LocalTime.parse(timetemp, timeFormatter);
-
-                    if (time2.isAfter(time1)) {
-                        _time_in_text.setText("Time in:\n" + timetemp);
-                    } else if (time2.isBefore(time1)) {
-                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("time", varTime);
-                        editor.putString("date", varDate);
-                        editor.apply();
-                        _time_in_text.setText("Time in:\n" + varTime);
-                    }
-                }
-
-            } else {
-
-            }
-
+        if(savedTime.equals("") && savedDate.equals("")){
+            _time_in_text.setText("Time in:\n" + newTime);
+            SharedPreferences.Editor editor2 = sh.edit();
+            editor2.putString("time",newTime);
+            editor2.putString("date",newDate);
+            editor2.apply();
         } else {
-            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("time", varTime);
-            editor.putString("date", varDate);
-        }
+            SimpleDateFormat dateFormat = new SimpleDateFormat("d MMMM yyyy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a");
+            Date savedDate2 = dateFormat.parse(savedDate);
+            Date newDate2 = dateFormat.parse(newDate);
+            Date savedTime2 = timeFormat.parse(savedTime);
+            Date newTime2 = timeFormat.parse(newTime);
+            if(debug){
+                Log.d("Tracking: xxx","old Date: " + savedDate);
+                Log.d("Tracking: xxx","old Time: " + savedTime);
+                Log.d("Tracking: xxx","new Date: " + newDate);
+                Log.d("Tracking: xxx","new Time: " + newTime);
+            }
 
+            if (savedDate2.before(newDate2)) {
+                SharedPreferences.Editor editor2 = sh.edit();
+                editor2.putString("time",newTime);
+                editor2.putString("date",newDate);
+                editor2.apply();
+                _time_in_text.setText("Time in:\n" + newTime);
+            }
+        }
 
     }
 
     private void setPrompt(String prompt) {
-            if(prompt.equals("")){
-                _post_text.setText("");
-                _card_prompt.setVisibility(View.GONE);
-            } else {
-                _post_text.setText(prompt);
-                _card_prompt.setVisibility(View.VISIBLE);
-            }
+        Snackbar snackbar
+                = Snackbar
+                .make(
+                        LinearMain,
+                        prompt,
+                        Snackbar.LENGTH_LONG);
+        snackbar.show();
+//            if(prompt.equals("")){
+//                _post_text.setText("");
+//                _card_prompt.setVisibility(View.GONE);
+//            } else {
+//                _post_text.setText(prompt);
+//                _card_prompt.setVisibility(View.VISIBLE);
+//            }
     }
 
     private static String convertDateFormat(String inputDate, String outputFormat) {
@@ -524,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... params) {
             String serverAddress = params[0];
-            int timeout = 2000; // Timeout in milliseconds
+            int timeout = 1200; // Timeout in milliseconds
 
             return PingUtils.isServerReachable(serverAddress, timeout);
         }
@@ -541,11 +646,11 @@ public class MainActivity extends AppCompatActivity {
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {
                     start_func = false;
-                    makeGetRequest(get_status_lan);
+                    makeGetRequest(get_status_lan + emp_id);
                 }
                 if (get_pressed){
                     get_pressed = false;
-                    makeGetRequest(get_status_lan);
+                    makeGetRequest(get_status_lan + emp_id);
                 }
                 if(post_pressed){
                     post_pressed = false;
@@ -560,11 +665,11 @@ public class MainActivity extends AppCompatActivity {
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {
                     start_func = false;
-                    makeGetRequest(get_status_wan);
+                    makeGetRequest(get_status_wan + emp_id);
                 }
                 if (get_pressed){
                     get_pressed = false;
-                    makeGetRequest(get_status_wan);
+                    makeGetRequest(get_status_wan + emp_id);
                 }
                 if(post_pressed){
                     post_pressed = false;

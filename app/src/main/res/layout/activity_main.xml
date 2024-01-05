@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -23,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:fontFamily="@font/kdam"
-            android:text="Time in:\n8:41 AM"
+            android:text="Time in:\n"
             android:textColor="@color/white"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -50,6 +51,40 @@
             android:src="@drawable/drawable_settings"/>
 
     </RelativeLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="10dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="10dp"
+            android:orientation="horizontal"
+            android:gravity="start">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name:  "
+                android:fontFamily="@font/kdam"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:fontFamily="@font/kdam"
+                android:textAlignment="center"
+                android:textSize="18sp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
 
 
     <androidx.cardview.widget.CardView
@@ -118,6 +153,7 @@
                 android:textSize="18sp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

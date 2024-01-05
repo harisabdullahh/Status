@@ -1,5 +1,8 @@
 package com.blood.status;
 
+import static com.blood.status.Request.emp_id;
+import static com.blood.status.Request.debug;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -28,9 +31,9 @@ public class PostRequestTask extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... voids) {
         String apiUrl = "";
         if(Request.use_wan_text.equals("false"))
-            apiUrl = Request.post_mark_attendance_lan;
+            apiUrl = Request.post_mark_attendance_lan + emp_id;
         else
-            apiUrl = Request.post_mark_attendance_wan;
+            apiUrl = Request.post_mark_attendance_wan + emp_id;
 
         String boundary = "*****";
         String lineEnd = "\r\n";
@@ -71,7 +74,8 @@ public class PostRequestTask extends AsyncTask<Void, Void, String> {
                 urlConnection.disconnect();
             }
         } catch (IOException e) {
-            Log.e("PostRequestTask", "Error: " + e.getMessage());
+            if(debug)
+                Log.e("PostRequestTask", "Error: " + e.getMessage());
             return null;
         }
     }
@@ -80,12 +84,14 @@ public class PostRequestTask extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String result) {
         // Handle the result, for example, update UI or perform other tasks
         if (result != null) {
-            Log.d("PostRequestTask", "Response: " + result);
+            if(debug)
+                Log.d("PostRequestTask", "Response: " + result);
             if (callback != null) {
                 callback.onSuccess(result);
             }
         } else {
-            Log.e("PostRequestTask", "Error in POST request");
+            if(debug)
+                Log.e("PostRequestTask", "Error in POST request");
             if (callback != null) {
                 callback.onError();
             }
