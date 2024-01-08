@@ -53,6 +53,7 @@ public class PostRequestTask extends AsyncTask<Void, Void, String> {
                         "  \"deviceId\": \"" + deviceId + "\",\n" +
                         "  \"image_data\": \"" + base64ImageData + "\"\n" +
                         "}";
+                Log.i("Tracking: PostRequest", jsonPayload);
 
                 // Write the JSON data to the output stream
                 dos.writeBytes(jsonPayload);

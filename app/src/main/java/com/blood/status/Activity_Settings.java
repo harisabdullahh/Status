@@ -46,11 +46,11 @@ public class Activity_Settings extends AppCompatActivity {
     protected void onStart() {
 
         SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-        String deviceid = sh.getString("DEVICEID", "");
-        String empid = sh.getString("EMPID", "");
+//        String deviceid = sh.getString("DEVICEID", "");
+//        String empid = sh.getString("EMPID", "");
 
-        _device_id_txt.setText(deviceid);
-        _emp_id_txt.setText(empid);
+        _device_id_txt.setText(device_id);
+        _emp_id_txt.setText(emp_id);
 
         if(Request.use_wan_text.equals("false")) {
             _network_txt.setText("LAN");

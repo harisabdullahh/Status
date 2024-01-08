@@ -2,14 +2,17 @@ package com.blood.status;
 
 import static com.blood.status.Request.*;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
@@ -56,6 +60,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private String SHARED_PREFS = "shared_prefs";
+
     private static final int pic_id = 123;
     String convertedImage;
     private String firstName = "";
@@ -84,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         start_func = true;
         initView();
-        ping();
     }
 
     @Override
     protected void onStart() {
+        getLink();
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
@@ -97,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
             _name_text.setText(firstName);
         }
 
-        SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-        device_id = sh.getString("DEVICEID", "");
-        emp_id = sh.getString("EMPID", "");
+//        SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+//        device_id = sh.getString("DEVICEID", "");
+//        emp_id = sh.getString("EMPID", "");
 
         super.onStart();
     }
@@ -317,8 +322,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendPostRequest() {
         SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-        String deviceId = sh.getString("DEVICEID", "");
-        String empId = sh.getString("EMPID", "");
+//        String deviceId = sh.getString("DEVICEID", "");
+//        String empId = sh.getString("EMPID", "");
         if(debug)
             Log.d("Tracking: ", convertedImage);
         PostRequestTask.PostRequestCallback callback = new PostRequestTask.PostRequestCallback() {
@@ -391,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        new PostRequestTask(deviceId, convertedImage, callback).execute();
+        new PostRequestTask(device_id, convertedImage, callback).execute();
     }
 
     private void updateEarlyDate(String newDate, String newTime) throws ParseException {
@@ -473,6 +478,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void getLink() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(com.android.volley.Request.Method.GET, get_emp_info, null, new com.android.volley.Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray infoArray = response.getJSONArray("info");
+                    if (infoArray.length() > 0) {
+                        JSONObject infoObject = infoArray.getJSONObject(0); // Assuming there is only one object in the "info" array
+                        emp_id = String.valueOf(infoObject.getInt("id"));
+                        device_id = infoObject.getString("deviceid");
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("EMPID", emp_id);
+                        editor.putString("DEVICEID", device_id);
+                        editor.apply();
+                        if(!emp_id.equals("") && !device_id.equals("")) {
+                            ping();
+                        }
+                        //This will initiate on each episode click so have to fix it so that it can handle multiple clicks
+                    }
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Tracking: ", error.getMessage());
+            }
+        });
+
+        Volley.newRequestQueue(MainActivity.this).add(jsonObjectRequest);
+    }
+
     private class PingTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
@@ -485,6 +524,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean isReachable) {
             if (isReachable) {
+
+
                 use_wan = false;
                 get_success = false;
                 com.blood.status.Request.use_wan_text = String.valueOf(false);

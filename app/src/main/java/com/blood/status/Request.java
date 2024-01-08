@@ -7,6 +7,7 @@ public class Request {
     public static String post_mark_attendance_wan = "http://103.93.216.26:8037/api/Employee/MarkAttendance?EmpId=";
     public static String emp_login_lan = "http://172.16.100.111:8037/api/Employee/EmployeeLogin";
     public static String emp_login_wan = "http://103.93.216.26:8037/api/Employee/EmployeeLogin";
+    public static String get_emp_info = "https://raw.githubusercontent.com/harisabdullahh/script/main/empInfo.json";
     public static String emp_id = "";
     public static String device_id = "";
     public static String outputDateFormat = "dd MMMM yyyy";
