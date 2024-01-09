@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +43,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import okhttp3.Call;
@@ -74,8 +77,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean start_func = false;
     MaterialButton get_button, post_button;
     LinearLayout LinearMain;
+    SwipeRefreshLayout swipeRefreshLayout;
     private MaterialButton _lan_button, _wan_button;
-    private TextView _date_text, _time_text, _post_text, _network_text, _time_in_text, _name_text;
+    private TextView _date_text, _time_text, _post_text, _network_text, _time_in_text, _name_text, _ontime_text, _late_text, _leave_text;
     private CardView _card_prompt;
     private ImageView _settings_button;
     private ProgressBar _progressBar1;
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Initializtion
         LinearMain = findViewById(R.id.LinearMain);
-        get_button = findViewById(R.id.get_button);
+//        get_button = findViewById(R.id.get_button);
         post_button = findViewById(R.id.post_button);
         _date_text = findViewById(R.id.date_text);
         _time_text = findViewById(R.id.time_text);
@@ -141,29 +145,49 @@ public class MainActivity extends AppCompatActivity {
         _name_text = findViewById(R.id.name_text);
         _settings_button = findViewById(R.id.settings_button);
         _progressBar1 = findViewById(R.id.progressBar1);
-        _progressBar2 = findViewById(R.id.progressBar2);
+//        _progressBar2 = findViewById(R.id.progressBar2);
         _card_prompt = findViewById(R.id.card_prompt);
         _time_in_text = findViewById(R.id.time_in_text);
+        _ontime_text = findViewById(R.id.ontime_text);
+        _late_text = findViewById(R.id.late_text);
+        _leave_text = findViewById(R.id.leave_text);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
 
         //Action
         _progressBar1.setVisibility(View.GONE);
-        _progressBar2.setVisibility(View.GONE);
+//        _progressBar2.setVisibility(View.GONE);
         _card_prompt.setVisibility(View.GONE);
+        swipeRefreshLayout.setColorSchemeResources(R.color.main_color);
 
 
         //Listeners
-        get_button.setOnClickListener(v -> {
-            if(!emp_id.equals("") && !device_id.equals("")){
-                if(!hold_button){
-                    get_button.setVisibility(View.GONE);
-                    _progressBar2.setVisibility(View.VISIBLE);
-                    get_pressed = true;
-                    ping();
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(!emp_id.equals("") && !device_id.equals("")){
+                    if(!hold_button){
+//                        get_button.setVisibility(View.GONE);
+//                        _progressBar2.setVisibility(View.VISIBLE);
+                        get_pressed = true;
+                        ping();
+                    }
                 }
             }
         });
+
+//        get_button.setOnClickListener(v -> {
+//            if(!emp_id.equals("") && !device_id.equals("")){
+//                if(!hold_button){
+//                    get_button.setVisibility(View.GONE);
+//                    _progressBar2.setVisibility(View.VISIBLE);
+//                    get_pressed = true;
+//                    ping();
+//                }
+//            }
+//        });
 
         post_button.setOnClickListener(v -> {
 
@@ -278,47 +302,124 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-        private void handleJSONResponse(String json) {
-            firstName = extractFullName(json);
-            SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("firstName", firstName);
-            editor.apply();
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                JSONArray resultArray = jsonObject.getJSONArray("result");
+//        private void handleJSONResponse(String json) {
+//            firstName = extractFullName(json);
+//            SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putString("firstName", firstName);
+//            editor.apply();
+//            try {
+//                JSONObject jsonObject = new JSONObject(json);
+//                JSONArray resultArray = jsonObject.getJSONArray("result");
+//
+//                if (resultArray.length() > 0) {
+//                    JSONObject firstResult = resultArray.getJSONObject(0);
+//
+//                    String lastAttendance = firstResult.getString("lastAttendance");
+//                    if(debug)
+//                        Log.d("Tracking: ", lastAttendance);
+//                    status_result = lastAttendance;
+//                    int indexOfT = lastAttendance.indexOf('T');
+//                    int lengthOfT = lastAttendance.length();
+//                    status_date = lastAttendance.substring(0, indexOfT);
+//                    status_time = lastAttendance.substring(indexOfT+1, indexOfT+6);
+//
+//                    runOnUiThread(() -> {
+////                        _progressBar2.setVisibility(View.GONE);
+//                        swipeRefreshLayout.setRefreshing(false);
+////                        get_button.setVisibility(View.VISIBLE);
+//                        String formattedDate = convertDateFormat(status_date, outputDateFormat);
+//                        String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
+//                        _time_text.setText(formattedTime);
+//                        _date_text.setText(formattedDate);
+//                        _name_text.setText(firstName);
+//                        try {
+//                            updateEarlyDate(formattedDate, formattedTime);
+//                        } catch (ParseException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    });
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
 
-                if (resultArray.length() > 0) {
-                    JSONObject firstResult = resultArray.getJSONObject(0);
+    private void handleJSONResponse(String json) {
+        firstName = extractFullName(json);
+        SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("firstName", firstName);
+        editor.apply();
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray resultArray = jsonObject.getJSONArray("result");
 
-                    String lastAttendance = firstResult.getString("lastAttendance");
-                    if(debug)
-                        Log.d("Tracking: ", lastAttendance);
-                    status_result = lastAttendance;
-                    int indexOfT = lastAttendance.indexOf('T');
-                    int lengthOfT = lastAttendance.length();
-                    status_date = lastAttendance.substring(0, indexOfT);
-                    status_time = lastAttendance.substring(indexOfT+1, indexOfT+6);
+            if (resultArray.length() > 0) {
+                JSONObject firstResult = resultArray.getJSONObject(0);
 
-                    runOnUiThread(() -> {
-                        _progressBar2.setVisibility(View.GONE);
-                        get_button.setVisibility(View.VISIBLE);
+                String lastAttendance = firstResult.getString("lastAttendance");
+                if (debug)
+                    Log.d("Tracking: ", lastAttendance);
+                status_result = lastAttendance;
+                int indexOfT = lastAttendance.indexOf('T');
+                int lengthOfT = lastAttendance.length();
+                status_date = lastAttendance.substring(0, indexOfT);
+                status_time = lastAttendance.substring(indexOfT + 1, indexOfT + 6);
+
+                JSONArray attendanceStatusArray = firstResult.getJSONArray("attendanceStatus");
+                List<String> attendanceStatusList = new ArrayList<>();
+
+                for (int i = 0; i < attendanceStatusArray.length(); i++) {
+                    JSONObject statusObject = attendanceStatusArray.getJSONObject(i);
+                    int total = statusObject.getInt("total");
+                    String name = statusObject.getString("name");
+                    String statusInfo = name + ": " + total;
+                    attendanceStatusList.add(statusInfo);
+
+                    if(name.contains("Late")){
+                        status_late = String.valueOf(total);
+                        if(debug)
+                            Log.d("Tracking: attendanceStatus", statusInfo);
+                    }
+
+                    if(name.contains("OnTime")){
+                        status_ontime = String.valueOf(total);
+                        if(debug)
+                            Log.d("Tracking: attendanceStatus", statusInfo);
+                    }
+                }
+
+                JSONObject leaveAllowanceObject = firstResult.getJSONObject("leaveAllowance");
+                status_leaveAssign = leaveAllowanceObject.getString("leaveAssign");
+                status_leaveAvailable = leaveAllowanceObject.getString("available");
+
+
+                runOnUiThread(() -> {
+                    //                        _progressBar2.setVisibility(View.GONE);
+                        swipeRefreshLayout.setRefreshing(false);
+//                        get_button.setVisibility(View.VISIBLE);
                         String formattedDate = convertDateFormat(status_date, outputDateFormat);
                         String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
                         _time_text.setText(formattedTime);
                         _date_text.setText(formattedDate);
                         _name_text.setText(firstName);
+                        _ontime_text.setText(status_ontime);
+                        _late_text.setText(status_late);
+                        if(!status_leaveAvailable.equals("") && !status_leaveAssign.equals(""))
+                            _leave_text.setText(status_leaveAvailable + "/" + status_leaveAssign);
                         try {
                             updateEarlyDate(formattedDate, formattedTime);
                         } catch (ParseException e) {
                             throw new RuntimeException(e);
                         }
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                });
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
 
     private void sendPostRequest() {
         SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
@@ -530,7 +631,7 @@ public class MainActivity extends AppCompatActivity {
                 get_success = false;
                 com.blood.status.Request.use_wan_text = String.valueOf(false);
                 hold_button = false;
-                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
+//                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {
                     start_func = false;
@@ -548,7 +649,7 @@ public class MainActivity extends AppCompatActivity {
                 use_wan = true;
                 com.blood.status.Request.use_wan_text = String.valueOf(true);
                 hold_button = false;
-                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
+//                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {
                     start_func = false;

@@ -16,6 +16,10 @@ public class Request {
     public static String status_result = "";
     public static String status_date = "";
     public static String status_time = "";
-    public static boolean debug = false;
+    public static String status_ontime = "";
+    public static String status_late = "";
+    public static String status_leaveAssign = "";
+    public static String status_leaveAvailable = "";
+    public static boolean debug = true;
 
 }
