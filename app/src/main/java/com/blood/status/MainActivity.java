@@ -2,32 +2,25 @@ package com.blood.status;
 
 import static com.blood.status.Request.*;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -37,12 +30,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,10 +39,7 @@ import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -63,7 +49,6 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private String SHARED_PREFS = "shared_prefs";
-
     private static final int pic_id = 123;
     String convertedImage;
     private String firstName = "";
@@ -79,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout LinearMain;
     SwipeRefreshLayout swipeRefreshLayout;
     private MaterialButton _lan_button, _wan_button;
-    private TextView _date_text, _time_text, _post_text, _network_text, _time_in_text, _name_text, _ontime_text, _late_text, _leave_text;
-    private CardView _card_prompt;
+    private TextView _date_text, _time_out_text, _post_text, _network_text, _time_in_text, _name_text, _ontime_text, _late_text, _leave_text;
+    private CardView _card_prompt, _card_ontime, _card_late, _card_absent, _card_leave;
     private ImageView _settings_button;
     private ProgressBar _progressBar1;
     private ProgressBar _progressBar2;
@@ -101,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-            _time_text.setText(formattedTime);
+            _time_in_text.setText(formattedTime);
             _date_text.setText(formattedDate);
             _name_text.setText(firstName);
         }
@@ -140,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 //        get_button = findViewById(R.id.get_button);
         post_button = findViewById(R.id.post_button);
         _date_text = findViewById(R.id.date_text);
-        _time_text = findViewById(R.id.time_text);
+        _time_out_text = findViewById(R.id.time_out_text);
         _post_text = findViewById(R.id.post_text);
         _name_text = findViewById(R.id.name_text);
         _settings_button = findViewById(R.id.settings_button);
@@ -151,6 +136,10 @@ public class MainActivity extends AppCompatActivity {
         _ontime_text = findViewById(R.id.ontime_text);
         _late_text = findViewById(R.id.late_text);
         _leave_text = findViewById(R.id.leave_text);
+        _card_ontime = findViewById(R.id.card_ontime);
+        _card_late = findViewById(R.id.card_late);
+        _card_absent = findViewById(R.id.card_absent);
+        _card_leave = findViewById(R.id.card_leave);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
 
@@ -163,6 +152,22 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Listeners
+
+        _card_ontime.setOnClickListener(v -> {
+            openCalender();
+        });
+
+        _card_absent.setOnClickListener(v -> {
+            openCalender();
+        });
+
+        _card_late.setOnClickListener(v -> {
+            openCalender();
+        });
+
+        _card_leave.setOnClickListener(v -> {
+            openCalender();
+        });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -302,49 +307,6 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-//        private void handleJSONResponse(String json) {
-//            firstName = extractFullName(json);
-//            SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.putString("firstName", firstName);
-//            editor.apply();
-//            try {
-//                JSONObject jsonObject = new JSONObject(json);
-//                JSONArray resultArray = jsonObject.getJSONArray("result");
-//
-//                if (resultArray.length() > 0) {
-//                    JSONObject firstResult = resultArray.getJSONObject(0);
-//
-//                    String lastAttendance = firstResult.getString("lastAttendance");
-//                    if(debug)
-//                        Log.d("Tracking: ", lastAttendance);
-//                    status_result = lastAttendance;
-//                    int indexOfT = lastAttendance.indexOf('T');
-//                    int lengthOfT = lastAttendance.length();
-//                    status_date = lastAttendance.substring(0, indexOfT);
-//                    status_time = lastAttendance.substring(indexOfT+1, indexOfT+6);
-//
-//                    runOnUiThread(() -> {
-////                        _progressBar2.setVisibility(View.GONE);
-//                        swipeRefreshLayout.setRefreshing(false);
-////                        get_button.setVisibility(View.VISIBLE);
-//                        String formattedDate = convertDateFormat(status_date, outputDateFormat);
-//                        String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-//                        _time_text.setText(formattedTime);
-//                        _date_text.setText(formattedDate);
-//                        _name_text.setText(firstName);
-//                        try {
-//                            updateEarlyDate(formattedDate, formattedTime);
-//                        } catch (ParseException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                    });
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-
     private void handleJSONResponse(String json) {
         firstName = extractFullName(json);
         SharedPreferences sharedPreferences = getSharedPreferences("SHARED_PREFS", MODE_PRIVATE);
@@ -396,23 +358,23 @@ public class MainActivity extends AppCompatActivity {
 
 
                 runOnUiThread(() -> {
-                    //                        _progressBar2.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
-//                        get_button.setVisibility(View.VISIBLE);
                         String formattedDate = convertDateFormat(status_date, outputDateFormat);
                         String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-                        _time_text.setText(formattedTime);
+                        _time_in_text.setText(formattedTime);
                         _date_text.setText(formattedDate);
                         _name_text.setText(firstName);
                         _ontime_text.setText(status_ontime);
                         _late_text.setText(status_late);
+
                         if(!status_leaveAvailable.equals("") && !status_leaveAssign.equals(""))
                             _leave_text.setText(status_leaveAvailable + "/" + status_leaveAssign);
-                        try {
-                            updateEarlyDate(formattedDate, formattedTime);
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
+
+//                        try {
+//                            updateEarlyDate(formattedDate, formattedTime);
+//                        } catch (ParseException e) {
+//                            throw new RuntimeException(e);
+//                        }
                 });
             }
         } catch (Exception e) {
@@ -498,6 +460,12 @@ public class MainActivity extends AppCompatActivity {
         };
 
         new PostRequestTask(device_id, convertedImage, callback).execute();
+    }
+
+    private void openCalender() {
+            Intent i = new Intent(this, Activity_Calender.class);
+            startActivity(i);
+            finish();
     }
 
     private void updateEarlyDate(String newDate, String newTime) throws ParseException {
