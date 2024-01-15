@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,7 +87,10 @@ public class MainActivity extends AppCompatActivity {
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-            _time_in_text.setText(formattedTime);
+            if(formattedTime.contains("AM"))
+                _time_in_text.setText(formattedTime);
+            else if(formattedTime.contains("PM"))
+                _time_out_text.setText(formattedTime);
             _date_text.setText(formattedDate);
             _name_text.setText(firstName);
         }
@@ -319,7 +323,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultArray.length() > 0) {
                 JSONObject firstResult = resultArray.getJSONObject(0);
-
                 String lastAttendance = firstResult.getString("lastAttendance");
                 if (debug)
                     Log.d("Tracking: ", lastAttendance);
@@ -328,6 +331,9 @@ public class MainActivity extends AppCompatActivity {
                 int lengthOfT = lastAttendance.length();
                 status_date = lastAttendance.substring(0, indexOfT);
                 status_time = lastAttendance.substring(indexOfT + 1, indexOfT + 6);
+
+                if(debug)
+                    Log.d("Tracking: ", "status_time: " + status_time);
 
                 JSONArray attendanceStatusArray = firstResult.getJSONArray("attendanceStatus");
                 List<String> attendanceStatusList = new ArrayList<>();
@@ -356,12 +362,14 @@ public class MainActivity extends AppCompatActivity {
                 status_leaveAssign = leaveAllowanceObject.getString("leaveAssign");
                 status_leaveAvailable = leaveAllowanceObject.getString("available");
 
-
                 runOnUiThread(() -> {
                         swipeRefreshLayout.setRefreshing(false);
                         String formattedDate = convertDateFormat(status_date, outputDateFormat);
                         String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-                        _time_in_text.setText(formattedTime);
+                        if(formattedTime.contains("AM"))
+                            _time_in_text.setText(formattedTime);
+                        else if(formattedTime.contains("PM"))
+                            _time_out_text.setText(formattedTime);
                         _date_text.setText(formattedDate);
                         _name_text.setText(firstName);
                         _ontime_text.setText(status_ontime);
