@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -91,6 +92,13 @@ public class Activity_Calender extends AppCompatActivity {
         calender_info.setOnClickListener(v -> {
             Log.d("Trackingx", String.valueOf(calender.getSelectedDate()));
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(Activity_Calender.this, MainActivity.class);
+        startActivity(i);
+        super.onBackPressed();
     }
 
     private OkHttpClient client = new OkHttpClient();

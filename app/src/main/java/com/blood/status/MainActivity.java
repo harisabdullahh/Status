@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     private String SHARED_PREFS = "shared_prefs";
+    private String SHARED_PREFS_TIME = "shared_prefs_time";
     private static final int pic_id = 123;
     String convertedImage;
     private String firstName = "";
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean post_success = false;
     private boolean get_success = false;
     public boolean use_wan = false;
+    private boolean save_time = false;
     private boolean post_pressed = false;
     private boolean get_pressed = false;
     private boolean hold_button = false;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout LinearMain;
     SwipeRefreshLayout swipeRefreshLayout;
     private MaterialButton _lan_button, _wan_button;
-    private TextView _date_text, _time_out_text, _post_text, _network_text, _time_in_text, _name_text, _ontime_text, _late_text, _leave_text;
+    private TextView _date_text, _time_out_text, _post_text, _network_text, _time_in_text, _name_text, _ontime_text, _late_text, _absent_text, _leave_text;
     private CardView _card_prompt, _card_ontime, _card_late, _card_absent, _card_leave;
     private ImageView _settings_button;
     private ProgressBar _progressBar1;
@@ -87,10 +89,11 @@ public class MainActivity extends AppCompatActivity {
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-            if(formattedTime.contains("AM"))
-                _time_in_text.setText(formattedTime);
-            else if(formattedTime.contains("PM"))
-                _time_out_text.setText(formattedTime);
+//            if(formattedTime.contains("AM"))
+//                _time_in_text.setText(formattedTime);
+//            else if(formattedTime.contains("PM"))
+//                _time_out_text.setText(formattedTime);
+            saveTime(status_date,formattedTime);
             _date_text.setText(formattedDate);
             _name_text.setText(firstName);
         }
@@ -140,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         _ontime_text = findViewById(R.id.ontime_text);
         _late_text = findViewById(R.id.late_text);
         _leave_text = findViewById(R.id.leave_text);
+        _absent_text = findViewById(R.id.absent_text);
         _card_ontime = findViewById(R.id.card_ontime);
         _card_late = findViewById(R.id.card_late);
         _card_absent = findViewById(R.id.card_absent);
@@ -344,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
                     String name = statusObject.getString("name");
                     String statusInfo = name + ": " + total;
                     attendanceStatusList.add(statusInfo);
+                    if(debug)
+                        Log.d("Tracking: attendanceStatusTotal", statusInfo);
 
                     if(name.contains("Late")){
                         status_late = String.valueOf(total);
@@ -353,6 +359,12 @@ public class MainActivity extends AppCompatActivity {
 
                     if(name.contains("OnTime")){
                         status_ontime = String.valueOf(total);
+                        if(debug)
+                            Log.d("Tracking: attendanceStatus", statusInfo);
+                    }
+
+                    if(name.contains("Absent")){
+                        status_absent = String.valueOf(total);
                         if(debug)
                             Log.d("Tracking: attendanceStatus", statusInfo);
                     }
@@ -366,17 +378,36 @@ public class MainActivity extends AppCompatActivity {
                         swipeRefreshLayout.setRefreshing(false);
                         String formattedDate = convertDateFormat(status_date, outputDateFormat);
                         String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
-                        if(formattedTime.contains("AM"))
-                            _time_in_text.setText(formattedTime);
-                        else if(formattedTime.contains("PM"))
-                            _time_out_text.setText(formattedTime);
+//                        if(formattedTime.contains("AM")) {
+//                            _time_in_text.setText(formattedTime);
+//                        }
+//                        else if(formattedTime.contains("PM")) {
+//                            _time_out_text.setText(formattedTime);
+//                        }
+                        if(debug)
+                            Log.d("Tracking: Date:", status_date);
+
+                        saveTime(status_date, formattedTime);
+
                         _date_text.setText(formattedDate);
                         _name_text.setText(firstName);
                         _ontime_text.setText(status_ontime);
                         _late_text.setText(status_late);
+                        _absent_text.setText(status_absent);
 
-                        if(!status_leaveAvailable.equals("") && !status_leaveAssign.equals(""))
-                            _leave_text.setText(status_leaveAvailable + "/" + status_leaveAssign);
+                        if(!status_leaveAvailable.equals("") && !status_leaveAssign.equals("")) {
+                            if(status_leaveAvailable.equals(""))
+                                status_leaveAvailable = "0";
+                            if(status_absent.equals(""))
+                                status_absent = "0";
+
+                            int leave = Integer.parseInt(status_leaveAvailable);
+                            int absent = Integer.parseInt(status_absent);
+                            String leaveAvailableTemp = String.valueOf(leave-absent);
+                            if(debug)
+                                Log.d("Tracking: Leaves Available:", "Leaves: " + leaveAvailableTemp);
+                            _leave_text.setText(leaveAvailableTemp + "/" + status_leaveAssign);
+                        }
 
 //                        try {
 //                            updateEarlyDate(formattedDate, formattedTime);
@@ -390,6 +421,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void saveTime(String date, String time) {
+
+        Log.d("Tracking: Date:", "start");
+        Log.d("Tracking: Date:", "--date: " + date);
+        Log.d("Tracking: Date:", "--time: " + time);
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_TIME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if(time.contains("AM")) {
+            if (sharedPreferences.getString(date + "_time_in", "").equals("")) {
+                editor.putString(date + "_time_in", time);
+                editor.apply();
+                runOnUiThread(() -> {
+                    _time_in_text.setText(time);
+                });
+
+                if(debug)
+                    Log.d("Tracking: Date:", "one");
+            } else {
+                _time_in_text.setText(sharedPreferences.getString(date + "_time_in", ""));
+            }
+        } else if (time.contains("PM")) {
+            if (sharedPreferences.getString(date + "_time_out", "").equals("")) {
+                editor.putString(date + "_time_out", time);
+                editor.apply();
+                runOnUiThread(() -> {
+                    _time_out_text.setText(time);
+                });
+
+                if(debug)
+                    Log.d("Tracking: Date:", "two");
+            } else {
+                _time_out_text.setText(sharedPreferences.getString(date + "_time_out", ""));
+            }
+        }
+
+        if(debug)
+            Log.d("Tracking: Date:", "Date: " + date + "| Time: " + time);
+    }
 
     private void sendPostRequest() {
         SharedPreferences sh = getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
@@ -425,7 +494,6 @@ public class MainActivity extends AppCompatActivity {
                                 setPrompt(firstMessage);
                                 // Extract the name from the resultObject
                                 firstName = resultObject.optString("firstName", "");
-
                             }
                         } else if(status_code == 400){
                                 // Get the first item in the "result" array
@@ -618,6 +686,7 @@ public class MainActivity extends AppCompatActivity {
                     makeGetRequest(get_status_lan + emp_id);
                 }
                 if(post_pressed){
+                    save_time = true;
                     post_pressed = false;
                     sendPostRequest();
                 }
