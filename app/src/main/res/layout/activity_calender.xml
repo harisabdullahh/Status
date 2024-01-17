@@ -58,7 +58,7 @@
         android:id="@+id/calender_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
+        android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="10dp">
@@ -67,24 +67,108 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginVertical="10dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="start">
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Details:  "
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:fontFamily="@font/kdam"
-                android:textSize="18sp"/>
-            <TextView
-                android:id="@+id/calender_info_text"
-                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OnTime:  "
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/kdam"
+                    android:textSize="18sp"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        app:cardCornerRadius="8dp">
+                        <TextView
+                            android:id="@+id/calender_ontime_text"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:background="@color/green"
+                            android:text=""
+                            android:fontFamily="@font/kdam"
+                            android:textAlignment="center"
+                            android:textSize="18sp"/>
+                    </androidx.cardview.widget.CardView>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:fontFamily="@font/kdam"
-                android:textAlignment="center"
-                android:textSize="18sp"/>
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Late:  "
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/kdam"
+                    android:textSize="18sp"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        app:cardCornerRadius="8dp">
+                        <TextView
+                            android:id="@+id/calender_late_text"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:background="@color/yellow"
+                            android:text=""
+                            android:fontFamily="@font/kdam"
+                            android:textAlignment="center"
+                            android:textSize="18sp"/>
+                    </androidx.cardview.widget.CardView>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Absent:  "
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/kdam"
+                    android:textSize="18sp"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        app:cardCornerRadius="8dp">
+                        <TextView
+                            android:id="@+id/calender_absent_text"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:background="@color/design_default_color_error"
+                            android:text=""
+                            android:fontFamily="@font/kdam"
+                            android:textAlignment="center"
+                            android:textSize="18sp"/>
+                    </androidx.cardview.widget.CardView>
+                </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

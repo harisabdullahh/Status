@@ -21,6 +21,17 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:fontFamily="@font/kdam"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/kdam"
                     android:text="Status"
                     android:textAlignment="center"
                     android:textColor="@color/white"
@@ -53,7 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="10dp">
                 <LinearLayout
@@ -88,7 +100,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="10dp">
                 <LinearLayout
@@ -121,19 +134,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:weightSum="2"
-                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_time_in"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -166,12 +178,12 @@
                     android:id="@+id/card_time_out"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -206,7 +218,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:weightSum="2"
-                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView
@@ -218,7 +229,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -251,12 +262,12 @@
                     android:id="@+id/card_late"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -290,7 +301,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:weightSum="2"
-                android:layout_marginTop="5dp"
                 android:orientation="horizontal">
 
                 <androidx.cardview.widget.CardView
@@ -302,7 +312,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -335,12 +345,12 @@
                     android:id="@+id/card_leave"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="15dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp">
                     <LinearLayout
@@ -387,8 +397,8 @@
                         android:layout_width="200dp"
                         android:layout_height="55dp"
                         android:layout_marginTop="20dp"
-                        android:backgroundTint="@color/main_color"
                         app:cornerRadius="10dp"
+                        app:backgroundTint="@color/cardview_dark_background"
                         android:text="Go!"
                         android:textSize="18sp"
                         android:textColor="@color/white"

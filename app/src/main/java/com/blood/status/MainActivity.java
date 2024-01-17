@@ -10,6 +10,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -86,6 +88,54 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         getLink();
+
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_TIME, Context.MODE_PRIVATE);
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("a");
+        String date = dateFormat.format(currentDate);
+        String AM = timeFormat.format(currentDate);
+        if(debug)
+            Log.d("Tracking: Date:", "timeFormat: " + String.valueOf(AM));
+        if(AM.equals("AM")){
+            if(debug)
+                Log.d("Tracking: Date:", "inside AM");
+            if (sharedPreferences.getString(date + "_time_in", "").equals("")) {
+                if(debug)
+                    Log.d("Tracking: Date:", sharedPreferences.getString(date + "_time_in", ""));
+                if(debug)
+                    Log.d("Tracking: Date:", "inside AM if");
+                hold_button = false;
+//
+            } else {
+                if(debug)
+                    Log.d("Tracking: Date:", "inside AM else");
+                hold_button = true;
+
+            }
+        } else if (AM.equals("PM")) {
+            if(debug)
+                Log.d("Tracking: Date:", "inside PM");
+            if (sharedPreferences.getString(date + "_time_out", "").equals("")) {
+                if(debug)
+                    Log.d("Tracking: Date:", "inside PM if");
+                hold_button = false;
+//
+            } else {
+                if(debug)
+                    Log.d("Tracking: Date:", "inside PM else");
+                hold_button = true;
+
+            }
+        }
+
+//        if(hold_button) {
+//            post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, androidx.cardview.R.color.cardview_dark_background));
+//        } else {
+//            post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
+//        }
+
         if(get_success){
             String formattedDate = convertDateFormat(status_date, outputDateFormat);
             String formattedTime = convertTimeFormat(status_time, outputTimeFormat);
@@ -215,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                     _progressBar1.setVisibility(View.VISIBLE);
                     post_pressed = true;
                     ping();
+//                    setPrompt("Clicked");
                 }
             }
         });
@@ -423,9 +474,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveTime(String date, String time) {
 
+//        Calendar calendar = Calendar.getInstance();
+//        Date currentDate = calendar.getTime();
+//
+//        // Convert the date to string format
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        String date = dateFormat.format(currentDate);
+
+
         Log.d("Tracking: Date:", "start");
         Log.d("Tracking: Date:", "--date: " + date);
         Log.d("Tracking: Date:", "--time: " + time);
+
+
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS_TIME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         if(time.contains("AM")) {
@@ -541,7 +602,6 @@ public class MainActivity extends AppCompatActivity {
     private void openCalender() {
             Intent i = new Intent(this, Activity_Calender.class);
             startActivity(i);
-            finish();
     }
 
     private void updateEarlyDate(String newDate, String newTime) throws ParseException {
@@ -674,7 +734,7 @@ public class MainActivity extends AppCompatActivity {
                 use_wan = false;
                 get_success = false;
                 com.blood.status.Request.use_wan_text = String.valueOf(false);
-                hold_button = false;
+//                hold_button = false;
 //                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {
@@ -693,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 use_wan = true;
                 com.blood.status.Request.use_wan_text = String.valueOf(true);
-                hold_button = false;
+//                hold_button = false;
 //                get_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 post_button.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.main_color));
                 if(start_func) {

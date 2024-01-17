@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -42,7 +43,8 @@ public class Activity_Calender extends AppCompatActivity {
 
     MaterialCalendarView calender;
     CardView calender_info;
-    TextView calender_info_text;
+    TextView calender_ontime_text, calender_late_text, calender_absent_text;
+    ImageView back_button_calender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,10 @@ public class Activity_Calender extends AppCompatActivity {
 
         calender = findViewById(R.id.calender);
         calender_info = findViewById(R.id.calender_info);
-        calender_info_text = findViewById(R.id.calender_info_text);
+        calender_ontime_text = findViewById(R.id.calender_ontime_text);
+        calender_late_text = findViewById(R.id.calender_late_text);
+        calender_absent_text = findViewById(R.id.calender_absent_text);
+        back_button_calender = findViewById(R.id.back_button_calender);
         eventDatesOnTime = new HashSet<>();
         eventDatesLate = new HashSet<>();
         eventDatesAbsent = new HashSet<>();
@@ -60,6 +65,9 @@ public class Activity_Calender extends AppCompatActivity {
         get_calender(get_calender_lan + emp_id + calender_date_jan);
 
         //Listener
+        back_button_calender.setOnClickListener(v -> {
+            onBackPressed();
+        });
         calender.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
@@ -96,8 +104,9 @@ public class Activity_Calender extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent i = new Intent(Activity_Calender.this, MainActivity.class);
-        startActivity(i);
+//        Intent i = new Intent(Activity_Calender.this, MainActivity.class);
+//        startActivity(i);
+        finish();
         super.onBackPressed();
     }
 
