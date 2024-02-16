@@ -12,6 +12,7 @@ public class Request {
     public static String calender_date_jan = "&selectedDate=2024-01-10%2009:20:22.913";
     public static String emp_id = "";
     public static String device_id = "";
+    public static String emp_image = "";
     public static String outputDateFormat = "dd MMMM yyyy";
     public static String outputTimeFormat = "h:mm a";
     public static String use_wan_text = "";

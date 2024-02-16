@@ -18,11 +18,13 @@ import java.net.URL;
 public class PostRequestTask extends AsyncTask<Void, Void, String> {
     private String deviceId;
     private String base64ImageData; // Base64-encoded image data
+    private String empImage;
     private PostRequestCallback callback;
 
-    public PostRequestTask(String deviceId, String base64ImageData, PostRequestCallback callback) {
+    public PostRequestTask(String deviceId, String base64ImageData, String empImage, PostRequestCallback callback) {
         this.deviceId = deviceId;
         this.base64ImageData = base64ImageData;
+        this.empImage = empImage;
         this.callback = callback;
     }
 
@@ -51,7 +53,7 @@ public class PostRequestTask extends AsyncTask<Void, Void, String> {
                 // Construct the JSON payload
                 String jsonPayload = "{\n" +
                         "  \"deviceId\": \"" + deviceId + "\",\n" +
-                        "  \"image_data\": \"" + base64ImageData + "\"\n" +
+                        "  \"image_data\": \"" + empImage + "\"\n" +
                         "}";
                 Log.i("Tracking: PostRequest", jsonPayload);
 

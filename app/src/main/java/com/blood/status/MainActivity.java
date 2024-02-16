@@ -712,7 +712,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        new PostRequestTask(device_id, convertedImage, callback).execute();
+        new PostRequestTask(device_id, convertedImage, emp_image, callback).execute();
     }
 
     private void openCalender() {
@@ -809,15 +809,16 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject infoObject = infoArray.getJSONObject(0); // Assuming there is only one object in the "info" array
                         emp_id = String.valueOf(infoObject.getInt("id"));
                         device_id = infoObject.getString("deviceid");
+                        emp_image = infoObject.getString("image");
                         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("EMPID", emp_id);
                         editor.putString("DEVICEID", device_id);
+                        editor.putString("EMPIMAGE", emp_image);
                         editor.apply();
                         if(!emp_id.equals("") && !device_id.equals("")) {
                             ping();
                         }
-                        //This will initiate on each episode click so have to fix it so that it can handle multiple clicks
                     }
                 } catch (JSONException ex) {
                     ex.printStackTrace();
